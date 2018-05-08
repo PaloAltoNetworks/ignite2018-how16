@@ -19,7 +19,11 @@ def main():
     v1 = client.CoreV1Api()
     mysvc = watch.Watch().stream(v1.list_pod_for_all_namespaces)
     for event in mysvc:
-        print event
+        while True:
+            if event['object'].status.pod_ip == None:
+                continue
+            else:
+                break
         Register += '<entry ip="' + event['object'].status.pod_ip + '">'
         Register += "<tag>"
         for i in event['object'].metadata.labels:
