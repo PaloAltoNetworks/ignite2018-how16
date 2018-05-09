@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import sys
 #from kubernetes import client, config, watch
 import ssl
 import urllib2
@@ -18,15 +19,8 @@ v1 = kubernetes.client.CoreV1Api()
 v1ext = kubernetes.client.ExtensionsV1beta1Api()    
 
 
-def install_and_import(package):
-    import importlib
-    try:
-        importlib.import_module(package)
-    except ImportError:
-        import pip
-        pip.main(['install', package])
-    finally:
-        globals()[package] = importlib.import_module(package)
+def install(package):
+    subprocess.call([sys.executable, "-m", "pip", "install", package])
 
 
 
@@ -82,7 +76,7 @@ def pods():
 
 
 def main():
-    install_and_import('kubernetes')
+    install('kubernetes')
     t1 =  threading.Thread(name='watch_pods',target=pods, args=()).start()
     t2 =  threading.Thread(name='watch_svcs',target=services, args=()).start()
     while threading.active_count() > 0:
