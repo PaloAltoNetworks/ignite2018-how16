@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os
-import sys
+import pip
 #from kubernetes import client, config, watch
 import ssl
 import urllib2
@@ -20,7 +20,7 @@ v1ext = kubernetes.client.ExtensionsV1beta1Api()
 
 
 def install(package):
-    subprocess.call([sys.executable, "-m", "pip", "install", package])
+    pip.main(['install', package])
 
 
 
