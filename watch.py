@@ -10,6 +10,7 @@ import time
 import threading
 import time
 import site
+import sys
 
 
 gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
@@ -22,6 +23,7 @@ v2 = client.CoreV1Api()
 def services():
     mysvcs = watch.Watch().stream(v2.list_service_for_all_namespaces)
     for event1 in mysvcs:
+        print event1['type']
         FWXMLUpdate = []
         XMLHeader = "<uid-message><version>1.0</version><type>update</type><payload>"
         XMLFooter = "</payload></uid-message>"
@@ -48,6 +50,7 @@ def pods():
 
     mypods = watch.Watch().stream(v1.list_pod_for_all_namespaces)
     for event in mypods:
+        print event['type']
         FWXMLUpdate = []
         XMLHeader = "<uid-message><version>1.0</version><type>update</type><payload>"
         XMLFooter = "</payload></uid-message>"
