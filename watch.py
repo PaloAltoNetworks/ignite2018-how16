@@ -32,7 +32,7 @@ def services():
                 Register += '<entry ip="' + event1['object'].status.load_balancer.ingress[0].ip + '">'
             else:
                 Register += '<entry ip="' + event1['object'].spec.cluster_ip + '">'
-                Register += "<tag>"
+            Register += "<tag>"                
             for i in event1['object'].metadata.labels:
                 Register += "<member>" + event1['object'].metadata.labels[i] + "-svc" + "</member>"
             Register += "</tag>"
@@ -50,7 +50,7 @@ def pods():
 
     mypods = watch.Watch().stream(v1.list_pod_for_all_namespaces)
     for event in mypods:
-        if event['type'] == 'MODIFIED' and event['object'].metadata.namespace == 'default':
+        if event['type'] == 'MODIFIED' and event['object'].metadata.namespace == 'default' and event['object'].status.pod_ip is not None:
             FWXMLUpdate = []
             XMLHeader = "<uid-message><version>1.0</version><type>update</type><payload>"
             XMLFooter = "</payload></uid-message>"
@@ -73,8 +73,12 @@ def pods():
 
 
 def main():
-    t1 =  threading.Thread(name='watch_pods',target=pods, args=()).start()
-    t2 =  threading.Thread(name='watch_svcs',target=services, args=()).start()
+    t1 =  threading.Thread(name='watch_pods',target=pods, args=())
+    t1.daemon = True
+    t1.start()
+    t2 =  threading.Thread(name='watch_svcs',target=services, args=())
+    t2.daemon = True
+    t2.start()
     while threading.active_count() > 0:
         time.sleep(1)
 
