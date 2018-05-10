@@ -23,51 +23,53 @@ v2 = client.CoreV1Api()
 def services():
     mysvcs = watch.Watch().stream(v2.list_service_for_all_namespaces)
     for event1 in mysvcs:
-        print event1['type']
-        FWXMLUpdate = []
-        XMLHeader = "<uid-message><version>1.0</version><type>update</type><payload>"
-        XMLFooter = "</payload></uid-message>"
-        Register = "<register>"        
-        if event1['object'].spec.type == "LoadBalancer":
-          Register += '<entry ip="' + event1['object'].status.load_balancer.ingress[0].ip + '">'
-        else:
-          Register += '<entry ip="' + event1['object'].spec.cluster_ip + '">'
-        Register += "<tag>"
-        for i in event1['object'].metadata.labels:
-            Register += "<member>" + event1['object'].metadata.labels[i] + "-svc" + "</member>"
-        Register += "</tag>"
-        Register += "</entry>"
-        Register += '</register>'
-        FWXMLUpdate = XMLHeader + Register + XMLFooter
-        url = "https://%s/api/?type=user-id&action=set&key=%s&cmd=%s" % (ip, api_key,urllib.quote(FWXMLUpdate))
-        try:
-            response = urllib2.urlopen(url,context=gcontext).read()
-        except urllib2.HTTPError, e:
-            print "HTTPError = " + str(e)
+        if event1['type'] == 'MODIFIED' and event1['object'].metadata.namespace == 'default':
+            FWXMLUpdate = []
+            XMLHeader = "<uid-message><version>1.0</version><type>update</type><payload>"
+            XMLFooter = "</payload></uid-message>"
+            Register = "<register>"        
+            if event1['object'].spec.type == "LoadBalancer":
+                Register += '<entry ip="' + event1['object'].status.load_balancer.ingress[0].ip + '">'
+            else:
+                Register += '<entry ip="' + event1['object'].spec.cluster_ip + '">'
+                Register += "<tag>"
+            for i in event1['object'].metadata.labels:
+                Register += "<member>" + event1['object'].metadata.labels[i] + "-svc" + "</member>"
+            Register += "</tag>"
+            Register += "</entry>"
+            Register += '</register>'
+            FWXMLUpdate = XMLHeader + Register + XMLFooter
+            url = "https://%s/api/?type=user-id&action=set&key=%s&cmd=%s" % (ip, api_key,urllib.quote(FWXMLUpdate))
+            try:
+                response = urllib2.urlopen(url,context=gcontext).read()
+            except urllib2.HTTPError, e:
+                print "HTTPError = " + str(e)
 
 
 def pods():
 
     mypods = watch.Watch().stream(v1.list_pod_for_all_namespaces)
     for event in mypods:
-        print event['type']
-        FWXMLUpdate = []
-        XMLHeader = "<uid-message><version>1.0</version><type>update</type><payload>"
-        XMLFooter = "</payload></uid-message>"
-        Register = "<register>"        
-        Register += '<entry ip="' + event['object'].status.pod_ip + '">'
-        Register += "<tag>"
-        for i in event['object'].metadata.labels:
-            Register += "<member>" + event['object'].metadata.labels[i] + "-pod" + "</member>"
-        Register += "</tag>"
-        Register += "</entry>"
-        Register += '</register>'
-        FWXMLUpdate = XMLHeader + Register + XMLFooter
-        url = "https://%s/api/?type=user-id&action=set&key=%s&cmd=%s" % (ip, api_key,urllib.quote(FWXMLUpdate))
-        try:
-            response = urllib2.urlopen(url,context=gcontext).read()
-        except urllib2.HTTPError, e:
-            print "HTTPError = " + str(e)
+        if event['type'] == 'MODIFIED' and event['object'].metadata.namespace == 'default':
+            FWXMLUpdate = []
+            XMLHeader = "<uid-message><version>1.0</version><type>update</type><payload>"
+            XMLFooter = "</payload></uid-message>"
+            Register = "<register>"        
+            Register += '<entry ip="' + event['object'].status.pod_ip + '">'
+            Register += "<tag>"
+            for i in event['object'].metadata.labels:
+                Register += "<member>" + event['object'].metadata.labels[i] + "-pod" + "</member>"
+            Register += "</tag>"
+            Register += "</entry>"
+            Register += '</register>'
+            FWXMLUpdate = XMLHeader + Register + XMLFooter
+            url = "https://%s/api/?type=user-id&action=set&key=%s&cmd=%s" % (ip, api_key,urllib.quote(FWXMLUpdate))
+            try:
+                response = urllib2.urlopen(url,context=gcontext).read()
+            except urllib2.HTTPError, e:
+                print "HTTPError = " + str(e)
+        else:
+            continue
 
 
 def main():
