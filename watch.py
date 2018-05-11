@@ -26,12 +26,12 @@ v3 = client.CoreV1Api()
 def services():
     mysvcs = watch.Watch().stream(v2.list_service_for_all_namespaces)
     for event1 in mysvcs:
-        if event1['type'] == 'MODIFIED' and event1['object'].metadata.namespace == 'default':
+        if event1['object'].metadata.namespace == 'default':
             FWXMLUpdate = []
             XMLHeader = "<uid-message><version>1.0</version><type>update</type><payload>"
             XMLFooter = "</payload></uid-message>"
             Register = "<register>"        
-            if event1['object'].spec.type == "LoadBalancer":
+            if event1['object'].spec.type == "LoadBalancer" and event1['object'].status.load_balancer.ingress is not None:
                 Register += '<entry ip="' + event1['object'].status.load_balancer.ingress[0].ip + '">'
             else:
                 Register += '<entry ip="' + event1['object'].spec.cluster_ip + '">'
