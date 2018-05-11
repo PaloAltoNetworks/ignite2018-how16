@@ -80,7 +80,7 @@ def nodes():
     for i in mynodes.items:
         for j in i.status.addresses:
             if j.type == "InternalIP":
-                ip = j.address
+                nodeip = j.address
             elif j.type == "Hostname":
                 name = j.address
 
@@ -89,7 +89,7 @@ def nodes():
         XMLFooter = "</payload></uid-message>"
         Register = "<register>" 
 
-        Register += '<entry ip="' + ip + '">'
+        Register += '<entry ip="' + nodeip + '">'
         Register += "<tag>"
         Register += "<member>" + name + "</member>"
         Register += "</tag>"
@@ -110,7 +110,7 @@ def main():
     t2 =  threading.Thread(name='watch_svcs',target=services, args=())
     t2.daemon = True
     t2.start()
-    t3 =  threading.Thread(name='watch_svcs',target=services, args=())
+    t3 =  threading.Thread(name='watch_nodes',target=nodes, args=())
     t3.daemon = True
     t3.start()    
     while threading.active_count() > 0:
