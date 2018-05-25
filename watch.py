@@ -15,7 +15,7 @@ import itertools
 
 gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
 ip = subprocess.check_output(shlex.split("gcloud --format='value(networkInterfaces[0].accessConfigs[0].natIP)' compute instances list --filter='name=firewall1'")).rstrip()
-api_key = "LUFRPT16Y1BlcXJWSUZrZ3IyQ1BiMXN2d3hSSDhLcUE9eXJiT0ZUdzkyU3I1ZjNIWDhaYzVCTmJaZGhHeFljUWZYQXlQMGViQ1Z6Yz0="
+api_key = ""
 config.load_kube_config(os.path.join(os.environ["HOME"], '.kube/config'))
 v1 = client.CoreV1Api()
 v2 = client.CoreV1Api()
